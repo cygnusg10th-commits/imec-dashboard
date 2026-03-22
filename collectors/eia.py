@@ -4,7 +4,8 @@ import requests
 import pandas as pd
 from typing import Optional
 from .db import cache_get, cache_set
-from config import EIA_API_KEY, CACHE_TTL
+import config
+from config import CACHE_TTL
 
 BASE_URL = "https://api.eia.gov/v2/international/data/"
 
@@ -12,6 +13,7 @@ BASE_URL = "https://api.eia.gov/v2/international/data/"
 def _fetch(activity_id: str, country_code: str, product_id: str = "57",
            unit: str = "TBPD", length: int = 36) -> Optional[pd.DataFrame]:
     """국제 석유 데이터 조회. activity: 1=생산, 2=수입, 4=수출."""
+    EIA_API_KEY = config.get_key("EIA_API_KEY")
     if not EIA_API_KEY:
         return None
     params = {

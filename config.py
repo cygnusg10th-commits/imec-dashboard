@@ -4,22 +4,28 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parent / ".env")
 
-def _secret(key: str) -> str:
-    """로컬: .env | 클라우드: st.secrets 순으로 API 키 조회."""
-    val = os.getenv(key, "")
+def get_key(name: str) -> str:
+    """API 키를 호출 시점에 읽음 — 로컬 .env 우선, 없으면 st.secrets."""
+    val = os.environ.get(name, "")
     if val:
         return val
     try:
         import streamlit as st
-        return st.secrets.get(key, "")
+        return st.secrets.get(name, "")
     except Exception:
         return ""
 
-# --- API Keys ---
-FRED_API_KEY    = _secret("FRED_API_KEY")
-EIA_API_KEY     = _secret("EIA_API_KEY")
-NEWS_API_KEY    = _secret("NEWS_API_KEY")
-COMTRADE_KEY    = _secret("COMTRADE_API_KEY")
+# 하위 호환용 모듈 __getattr__ — 함수 호출 시마다 최신 값 반환
+def __getattr__(name: str) -> str:
+    _key_map = {
+        "FRED_API_KEY":  "FRED_API_KEY",
+        "EIA_API_KEY":   "EIA_API_KEY",
+        "NEWS_API_KEY":  "NEWS_API_KEY",
+        "COMTRADE_KEY":  "COMTRADE_API_KEY",
+    }
+    if name in _key_map:
+        return get_key(_key_map[name])
+    raise AttributeError(f"module 'config' has no attribute {name!r}")
 
 # --- IMEC 참여국 ---
 IMEC_COUNTRIES = {

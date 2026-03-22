@@ -6,7 +6,8 @@ from typing import Optional
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from .db import cache_get, cache_set
 from .gdelt import get_articles as gdelt_articles
-from config import NEWS_API_KEY, NEWS_QUERIES, CACHE_TTL
+import config
+from config import NEWS_QUERIES, CACHE_TTL
 
 NEWSAPI_URL = "https://newsapi.org/v2/everything"
 _analyzer = SentimentIntensityAnalyzer()
@@ -22,6 +23,7 @@ def _sentiment(text: str) -> str:
 
 
 def _fetch_newsapi(query: str, page_size: int = 20) -> Optional[pd.DataFrame]:
+    NEWS_API_KEY = config.get_key("NEWS_API_KEY")
     if not NEWS_API_KEY:
         return None
     params = {

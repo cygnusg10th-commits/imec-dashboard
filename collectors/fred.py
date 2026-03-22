@@ -4,12 +4,14 @@ import requests
 import pandas as pd
 from typing import Optional
 from .db import cache_get, cache_set
-from config import FRED_API_KEY, FRED_SERIES, CACHE_TTL
+import config
+from config import FRED_SERIES, CACHE_TTL
 
 BASE_URL = "https://api.stlouisfed.org/fred/series/observations"
 
 
 def _fetch_series(series_id: str, limit: int = 365) -> Optional[pd.DataFrame]:
+    FRED_API_KEY = config.get_key("FRED_API_KEY")
     if not FRED_API_KEY:
         return None
     params = {
