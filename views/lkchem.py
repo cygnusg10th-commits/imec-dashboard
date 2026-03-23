@@ -169,12 +169,35 @@ def render():
                     unsafe_allow_html=True,
                 )
         else:
-            st.warning("DART API 키가 설정되지 않았습니다.")
-            st.markdown(
-                "공시 데이터를 보려면 [DART OpenAPI](https://opendart.fss.or.kr)에서 "
-                "무료 API 키를 발급받고 Streamlit Cloud → Settings → Secrets에 추가하세요."
-            )
-            st.code("DART_API_KEY = \"발급받은_키\"")
+            # 진단: API 키 감지 여부 + DART 직접 호출 결과 확인
+            from config import get_key
+            import requests as _req
+            dart_key = get_key("DART_API_KEY")
+            if not dart_key:
+                st.warning("DART API 키가 감지되지 않았습니다.")
+                st.code("DART_API_KEY = \"발급받은_키\"  # Streamlit Cloud → Settings → Secrets")
+            else:
+                st.info(f"🔑 DART 키 감지됨 (`{dart_key[:6]}...`) — API 호출 결과 확인 중...")
+                try:
+                    resp = _req.get(
+                        "https://opendart.fss.or.kr/api/list.json",
+                        params={
+                            "crtfc_key": dart_key,
+                            "corp_code": "00947161",
+                            "page_count": 5,
+                            "page_no": 1,
+                        },
+                        timeout=15,
+                    )
+                    data = resp.json()
+                    status = data.get("status", "?")
+                    msg    = data.get("message", "")
+                    if status == "000":
+                        st.success("DART API 정상 — 캐시 초기화 후 새로고침 해주세요.")
+                    else:
+                        st.error(f"DART API 오류: status={status} / {msg}")
+                except Exception as e:
+                    st.error(f"DART API 연결 실패: {e}")
             st.markdown("**DART 바로가기:** [엘케이켐 공시 목록](https://dart.fss.or.kr/corp/searchCorpInfo.do?selectKey=489500)")
 
     with col_news:

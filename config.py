@@ -11,7 +11,12 @@ def get_key(name: str) -> str:
         return val
     try:
         import streamlit as st
-        return st.secrets.get(name, "")
+        # st.secrets는 dict-like; .get() 또는 [] 모두 시도
+        try:
+            v = st.secrets[name]
+            return v if v else ""
+        except (KeyError, AttributeError):
+            return st.secrets.get(name, "")
     except Exception:
         return ""
 
