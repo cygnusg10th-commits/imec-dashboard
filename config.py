@@ -22,6 +22,7 @@ def __getattr__(name: str) -> str:
         "EIA_API_KEY":   "EIA_API_KEY",
         "NEWS_API_KEY":  "NEWS_API_KEY",
         "COMTRADE_KEY":  "COMTRADE_API_KEY",
+        "DART_API_KEY":  "DART_API_KEY",
     }
     if name in _key_map:
         return get_key(_key_map[name])

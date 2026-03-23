@@ -6,7 +6,7 @@
 import streamlit as st
 from datetime import datetime
 from collectors.db import cache_last_updated
-from views import overview, shipping, energy, trade, geopolitics, news_feed, report
+from views import overview, shipping, energy, trade, geopolitics, news_feed, report, lkchem
 
 # ---------------------------------------------------------------------------
 # 페이지 설정
@@ -50,6 +50,7 @@ tabs = st.tabs([
     "🌍 지정학",
     "📰 뉴스",
     "📋 일일 보고서",
+    "🔬 엘케이켐",
 ])
 
 with tabs[0]:
@@ -72,6 +73,9 @@ with tabs[5]:
 
 with tabs[6]:
     report.render()
+
+with tabs[7]:
+    lkchem.render()
 
 # ---------------------------------------------------------------------------
 # 푸터
