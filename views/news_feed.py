@@ -34,7 +34,7 @@ def _sentiment_bar(summary: dict, label: str):
         showlegend=False, xaxis_title="%", yaxis_title="",
         xaxis_range=[0, 100],
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, key=f"sentiment_bar_{label}")
 
 
 def _news_section(query_key: str):
