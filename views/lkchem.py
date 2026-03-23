@@ -169,14 +169,19 @@ def render():
                     unsafe_allow_html=True,
                 )
         else:
-            st.info("DART API 키를 설정하면 공시 목록을 확인할 수 있습니다.")
-            st.code("DART_API_KEY=your_key_here  # .env 파일에 추가")
+            st.warning("DART API 키가 설정되지 않았습니다.")
+            st.markdown(
+                "공시 데이터를 보려면 [DART OpenAPI](https://opendart.fss.or.kr)에서 "
+                "무료 API 키를 발급받고 Streamlit Cloud → Settings → Secrets에 추가하세요."
+            )
+            st.code("DART_API_KEY = \"발급받은_키\"")
+            st.markdown("**DART 바로가기:** [엘케이켐 공시 목록](https://dart.fss.or.kr/corp/searchCorpInfo.do?selectKey=489500)")
 
     with col_news:
-        st.subheader("📰 관련 뉴스")
-        news = lkchem.get_news(20)
-        if news is not None and not news.empty:
-            for _, row in news.iterrows():
+        st.subheader("📰 관련 뉴스 (GDELT)")
+        news_df = lkchem.get_news(20)
+        if news_df is not None and not news_df.empty:
+            for _, row in news_df.iterrows():
                 title = row.get("title", "")
                 url   = row.get("url", "#")
                 src   = row.get("source", "")
@@ -186,4 +191,9 @@ def render():
                     unsafe_allow_html=True,
                 )
         else:
-            st.info("뉴스 데이터를 불러올 수 없습니다.")
+            st.info("현재 관련 뉴스가 없습니다. (GDELT 30일 기준)")
+            st.markdown(
+                "페로브스카이트·반도체 소재 관련 최신 동향:  \n"
+                "- [Google 뉴스: LKChem](https://news.google.com/search?q=LKChem+semiconductor)  \n"
+                "- [네이버 뉴스: 엘케이켐](https://search.naver.com/search.naver?where=news&query=엘케이켐)"
+            )

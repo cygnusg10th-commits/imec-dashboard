@@ -192,35 +192,44 @@ def get_financials_static() -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 def get_news(limit: int = 20) -> Optional[pd.DataFrame]:
-    """엘케이켐 관련 뉴스 — GDELT."""
+    """엘케이켐 관련 뉴스 — GDELT (영문 쿼리)."""
     key = "lkchem_news"
     cached = cache_get(key, CACHE_TTL["daily"])
     if cached is not None:
         return cached
-    try:
-        queries = ["LKChem perovskite", "엘케이켐 반도체", "489500 LKChem"]
-        records = []
-        for q in queries:
+    # GDELT는 영문 기사만 인덱싱 — 영문 쿼리 사용
+    queries = [
+        "perovskite solar cell Korea semiconductor",
+        "hafnium chloride semiconductor precursor Korea",
+        "Korea KOSDAQ specialty chemicals semiconductor material",
+    ]
+    records = []
+    for q in queries:
+        try:
             r = requests.get(
                 "https://api.gdeltproject.org/api/v2/doc/doc",
                 params={"query": q, "mode": "artlist", "maxrecords": 10,
                         "timespan": "30d", "format": "json", "sort": "datedesc"},
                 timeout=20,
             )
+            r.raise_for_status()
             for a in r.json().get("articles", []):
+                title = a.get("title", "")
+                if not title:
+                    continue
                 records.append({
-                    "title":  a.get("title", ""),
+                    "title":  title,
                     "url":    a.get("url", "#"),
                     "source": a.get("domain", ""),
                     "date":   str(a.get("seendate", ""))[:8],
                 })
-        if not records:
-            return None
-        df = pd.DataFrame(records).drop_duplicates("title").head(limit)
-        cache_set(key, df)
-        return df
-    except Exception:
+        except Exception:
+            continue
+    if not records:
         return None
+    df = pd.DataFrame(records).drop_duplicates("title").head(limit)
+    cache_set(key, df)
+    return df
 
 
 # ---------------------------------------------------------------------------
