@@ -11,7 +11,7 @@ from .db import cache_get, cache_set, manual_get, manual_set
 from config import get_key, CACHE_TTL
 
 TICKER        = "489500.KQ"
-DART_CORP_CODE = "00947161"   # 엘케이켐 DART 기업코드
+DART_CORP_CODE = "01747977"   # 엘케이켐 DART 기업코드
 DART_BASE     = "https://opendart.fss.or.kr/api"
 
 # ---------------------------------------------------------------------------
@@ -119,6 +119,7 @@ def get_disclosures(limit: int = 15) -> Optional[pd.DataFrame]:
             params={
                 "crtfc_key":  api_key,
                 "corp_code":  corp_code,
+                "bgn_de":     "20240101",   # 시작일 필수
                 "page_count": limit,
                 "page_no":    1,
             },
